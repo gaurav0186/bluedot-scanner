@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Dot Scanner — MarketSmith RS Breakout</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #080c22; font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace; color: #c8d6e5; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #080c22; }
+  ::-webkit-scrollbar-thumb { background: #1a2744; border-radius: 3px; }
+  @keyframes bpulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(33,150,243,0.5), 0 0 40px rgba(33,150,243,0.15); }
+    50% { box-shadow: 0 0 28px rgba(33,150,243,0.7), 0 0 56px rgba(33,150,243,0.25); }
+  }
+  .sort-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #1a2744; background: transparent; color: #546e7a; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: 0.3px; transition: all 0.2s; }
+  .sort-btn.active { border-color: rgba(41,182,246,0.4); background: rgba(41,182,246,0.12); color: #29b6f6; }
+  .sort-btn:hover { border-color: rgba(41,182,246,0.3); }
+  .view-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #1a2744; background: transparent; color: #546e7a; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
+  .view-btn.active { border-color: rgba(41,182,246,0.4); background: rgba(41,182,246,0.12); color: #29b6f6; }
+  .card { background: linear-gradient(135deg, #0d1130, #0b0f2a); border: 1px solid #151d3a; border-radius: 12px; padding: 16px 18px; transition: all 0.25s ease; position: relative; overflow: hidden; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); background: linear-gradient(135deg, #111640, #0f1338); }
+  .sym-link { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; color: #e3f2fd; cursor: pointer; border-bottom: 1.5px solid transparent; transition: border-color 0.2s, color 0.2s; padding-bottom: 1px; text-decoration: none; }
+  .sym-link:hover { color: #29b6f6; border-bottom-color: rgba(41,182,246,0.5); }
+  .list-sym { font-weight: 800; font-size: 13px; color: #e3f2fd; cursor: pointer; transition: color 0.15s; text-decoration: none; }
+  .list-sym:hover { color: #29b6f6; }
+  .list-row { display: grid; grid-template-columns: 28px 14px 120px 1fr 85px 42px 36px 56px 56px 24px; padding: 11px 18px; align-items: center; border-bottom: 1px solid #111938; transition: background 0.15s; }
+  .list-row:last-child { border-bottom: none; }
+  .list-row:hover { background: rgba(33,150,243,0.06); }
+  .tag { font-size: 8px; font-weight: 700; padding: 3px 7px; border-radius: 4px; letter-spacing: 0.5px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const BLUEDOT_DATA = [
+  { rank: 1, symbol: "GVT&D", name: "GE Vernova T&D India", price: 3837.6, change: -0.36, rs: 99, score: 9, pctFrom52WH: 4.0, aboveSMA: 15.3, perf3M: 18.2, perf1M: 6.1, perfY: 52.3, stage2: true, inBase: true, demand: "B", master: "A", mcap: 98337 },
+  { rank: 2, symbol: "NATIONALUM", name: "National Aluminium", price: 400.1, change: 2.89, rs: 99, score: 9, pctFrom52WH: 7.3, aboveSMA: 10.9, perf3M: 22.5, perf1M: 8.4, perfY: 68.1, stage2: true, inBase: true, demand: "A-", master: "B", mcap: 73465 },
+  { rank: 3, symbol: "MCX", name: "Multi Commodity Exchange", price: 2585.0, change: 0.25, rs: 99, score: 9, pctFrom52WH: 4.4, aboveSMA: 8.3, perf3M: 14.8, perf1M: 5.2, perfY: 44.6, stage2: true, inBase: true, demand: "B", master: "B", mcap: 65905 },
+  { rank: 4, symbol: "HINDCOPPER", name: "Hindustan Copper", price: 555.9, change: 0.98, rs: 99, score: 5, pctFrom52WH: 26.9, aboveSMA: -2.8, perf3M: 31.4, perf1M: 12.7, perfY: 41.2, stage2: false, inBase: true, demand: "A-", master: "B", mcap: 53607 },
+  { rank: 5, symbol: "FORCEMOT", name: "Force Motors", price: 22830.0, change: 1.89, rs: 99, score: 9, pctFrom52WH: 13.7, aboveSMA: 5.3, perf3M: 28.6, perf1M: 9.8, perfY: 55.4, stage2: true, inBase: true, demand: "B-", master: "B", mcap: 29883 },
+  { rank: 6, symbol: "MTARTECH", name: "MTAR Technologies", price: 3678.4, change: -1.11, rs: 99, score: 9, pctFrom52WH: 6.2, aboveSMA: 17.8, perf3M: 45.1, perf1M: 14.3, perfY: 78.9, stage2: true, inBase: true, demand: "B+", master: "B", mcap: 11290 },
+  { rank: 7, symbol: "VEDL", name: "Vedanta", price: 738.5, change: 1.95, rs: 98, score: 9, pctFrom52WH: 4.1, aboveSMA: 9.2, perf3M: 19.7, perf1M: 7.6, perfY: 38.5, stage2: true, inBase: true, demand: "B", master: "A", mcap: 287844 },
+  { rank: 8, symbol: "KIRLOSENG", name: "Kirloskar Oil Engines", price: 1430.4, change: -0.13, rs: 98, score: 9, pctFrom52WH: 6.5, aboveSMA: 12.7, perf3M: 16.3, perf1M: 4.9, perfY: 42.1, stage2: true, inBase: true, demand: "A+", master: "A", mcap: 20864 },
+  { rank: 9, symbol: "POWERINDIA", name: "Hitachi Energy India", price: 25250.0, change: 0.02, rs: 97, score: 8, pctFrom52WH: 4.1, aboveSMA: 21.6, perf3M: 35.2, perf1M: 11.5, perfY: 61.8, stage2: true, inBase: false, demand: "B", master: "A", mcap: 112455 },
+  { rank: 10, symbol: "DATAPATTNS", name: "Data Patterns India", price: 3406.2, change: -1.14, rs: 97, score: 8, pctFrom52WH: 5.6, aboveSMA: 22.6, perf3M: 41.7, perf1M: 13.1, perfY: 72.4, stage2: true, inBase: false, demand: "A+", master: "B", mcap: 19049 },
+  { rank: 11, symbol: "SHRIRAMFIN", name: "Shriram Finance", price: 1059.6, change: -0.57, rs: 96, score: 9, pctFrom52WH: 4.4, aboveSMA: 3.5, perf3M: 12.1, perf1M: 3.8, perfY: 28.7, stage2: true, inBase: true, demand: "B-", master: "B", mcap: 198840 },
+  { rank: 12, symbol: "BHARATFORG", name: "Bharat Forge", price: 1837.0, change: -0.43, rs: 96, score: 9, pctFrom52WH: 5.1, aboveSMA: 14.1, perf3M: 24.3, perf1M: 8.2, perfY: 46.3, stage2: true, inBase: true, demand: "A+", master: "B", mcap: 87691 },
+  { rank: 13, symbol: "KARURVYSYA", name: "Karur Vysya Bank", price: 308.5, change: 2.34, rs: 96, score: 8, pctFrom52WH: 10.2, aboveSMA: 3.8, perf3M: 8.9, perf1M: 4.1, perfY: 31.5, stage2: true, inBase: true, demand: "C+", master: "B", mcap: 29836 },
+  { rank: 14, symbol: "GESHIP", name: "Great Eastern Shipping", price: 1431.9, change: 3.17, rs: 96, score: 9, pctFrom52WH: 0.7, aboveSMA: 16.5, perf3M: 15.4, perf1M: 6.3, perfY: 35.8, stage2: true, inBase: true, demand: "A+", master: "B", mcap: 20490 },
+  { rank: 15, symbol: "BSE", name: "BSE Limited", price: 2856.7, change: -0.08, rs: 95, score: 9, pctFrom52WH: 11.5, aboveSMA: 2.7, perf3M: 9.6, perf1M: 3.4, perfY: 25.8, stage2: true, inBase: true, demand: "B", master: "A", mcap: 116084 },
+];
+
+const getRSTier = (rs) => {
+  if (rs >= 97) return { label: "ELITE", color: "#00e676", bg: "rgba(0,230,118,0.08)", border: "rgba(0,230,118,0.25)" };
+  if (rs >= 93) return { label: "STRONG", color: "#69f0ae", bg: "rgba(105,240,174,0.06)", border: "rgba(105,240,174,0.2)" };
+  if (rs >= 88) return { label: "GOOD", color: "#29b6f6", bg: "rgba(41,182,246,0.06)", border: "rgba(41,182,246,0.2)" };
+  return { label: "OK", color: "#ffd54f", bg: "rgba(255,213,79,0.06)", border: "rgba(255,213,79,0.2)" };
+};
+
+const getDemandColor = (d) => {
+  if (!d) return "#555";
+  if (d.startsWith("A")) return "#00e676";
+  if (d.startsWith("B")) return "#29b6f6";
+  if (d.startsWith("C")) return "#ffa726";
+  return "#ef5350";
+};
+
+const getMasterBg = (m) => {
+  if (m === "A") return "linear-gradient(135deg, #00c853, #00897b)";
+  if (m === "B") return "linear-gradient(135deg, #2979ff, #1565c0)";
+  return "linear-gradient(135deg, #ff9100, #e65100)";
+};
+
+const openTV = (sym) => window.open("https://www.tradingview.com/chart/?symbol=NSE%3A" + encodeURIComponent(sym), "_blank");
+
+const formatPrice = (p) => p >= 10000 ? p.toLocaleString("en-IN", {maximumFractionDigits:0}) : p.toLocaleString("en-IN", {minimumFractionDigits:1, maximumFractionDigits:1});
+const formatMcap = (m) => m >= 100000 ? (m/100000).toFixed(1)+"L Cr" : m.toLocaleString("en-IN")+" Cr";
+
+function ScoreRing({ score, size = 36 }) {
+  const r = (size - 6) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - ((score / 9) * circ);
+  const color = score >= 8 ? "#00e676" : score >= 6 ? "#29b6f6" : "#ffa726";
+  return (
+    <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1a2233" strokeWidth={3}/>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={3} strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" style={{filter:`drop-shadow(0 0 4px ${color}55)`}}/>
+      <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central" fill={color} fontSize={11} fontWeight={800} fontFamily="monospace" style={{transform:"rotate(90deg)",transformOrigin:"center"}}>{score}</text>
+    </svg>
+  );
+}
+
+function MiniBar({ value, max, color, label }) {
+  const w = Math.min(Math.max((value / max) * 100, 3), 100);
+  return (
+    <div style={{flex:1,minWidth:0}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+        <span style={{fontSize:9,color:"#546e7a",textTransform:"uppercase",letterSpacing:"0.5px"}}>{label}</span>
+        <span style={{fontSize:10,color,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{value>0?"+":""}{value.toFixed(1)}%</span>
+      </div>
+      <div style={{height:3,background:"#111a33",borderRadius:2,overflow:"hidden"}}>
+        <div style={{height:"100%",width:w+"%",background:color,borderRadius:2}}/>
+      </div>
+    </div>
+  );
+}
+
+function StockCard({ stock }) {
+  const tier = getRSTier(stock.rs);
+  const isNear = stock.pctFrom52WH <= 5;
+  return (
+    <div className="card">
+      <div style={{position:"absolute",top:0,right:0,width:32,height:32,background:"linear-gradient(135deg,#1a2744,transparent)",borderRadius:"0 12px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#37474f"}}>{stock.rank}</div>
+      {isNear && <div style={{position:"absolute",top:12,left:-26,transform:"rotate(-45deg)",background:"linear-gradient(90deg,#00c853,#00e676)",color:"#0a0e27",fontSize:7,fontWeight:800,padding:"2px 28px",letterSpacing:"0.5px"}}>NEAR HIGH</div>}
+      
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
+        <div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:2}}>
+            <div style={{width:10,height:10,borderRadius:"50%",flexShrink:0,background:"radial-gradient(circle at 35% 35%,#64b5f6,#1565c0,#0d47a1)",boxShadow:"0 0 10px rgba(33,150,243,0.45)"}}/>
+            <a className="sym-link" onClick={()=>openTV(stock.symbol)} title={"Open "+stock.symbol+" on TradingView"}>
+              {stock.symbol} <span style={{fontSize:10,marginLeft:3,opacity:0.4}}>↗</span>
+            </a>
+          </div>
+          <div style={{fontSize:10,color:"#455a64",paddingLeft:18}}>{stock.name}</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:17,fontWeight:700,color:"#b0bec5",fontVariantNumeric:"tabular-nums"}}>₹{formatPrice(stock.price)}</div>
+          <div style={{fontSize:11,fontWeight:600,color:stock.change>=0?"#00e676":"#ef5350"}}>{stock.change>=0?"+":""}{stock.change.toFixed(2)}%</div>
+        </div>
+      </div>
+
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,background:tier.bg,border:"1px solid "+tier.border,borderRadius:20,padding:"4px 10px 4px 8px"}}>
+          <span style={{fontSize:18,fontWeight:900,color:tier.color,fontVariantNumeric:"tabular-nums",fontFamily:"monospace"}}>{stock.rs}</span>
+          <span style={{fontSize:8,fontWeight:700,color:tier.color,letterSpacing:"0.8px",opacity:0.7}}>{tier.label}</span>
+        </div>
+        <ScoreRing score={stock.score}/>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap",flex:1}}>
+          {stock.stage2 && <span className="tag" style={{background:"rgba(0,230,118,0.1)",color:"#00e676",border:"1px solid rgba(0,230,118,0.2)"}}>STAGE 2</span>}
+          {stock.inBase && <span className="tag" style={{background:"rgba(41,182,246,0.1)",color:"#29b6f6",border:"1px solid rgba(41,182,246,0.2)"}}>IN BASE</span>}
+          <span className="tag" style={{background:getDemandColor(stock.demand)+"15",color:getDemandColor(stock.demand),border:"1px solid "+getDemandColor(stock.demand)+"30"}}>DMD {stock.demand}</span>
+        </div>
+        <div style={{width:26,height:26,borderRadius:6,flexShrink:0,background:getMasterBg(stock.master),display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:"#fff"}}>{stock.master}</div>
+      </div>
+
+      <div style={{display:"flex",gap:12}}>
+        <MiniBar value={stock.perf1M} max={20} color="#29b6f6" label="1M"/>
+        <MiniBar value={stock.perf3M} max={50} color="#69f0ae" label="3M"/>
+        <MiniBar value={stock.perfY} max={80} color="#7c4dff" label="1Y"/>
+      </div>
+
+      <div style={{display:"flex",justifyContent:"space-between",marginTop:12,paddingTop:10,borderTop:"1px solid #151d3a",fontSize:10,color:"#455a64"}}>
+        <div><span style={{color:"#37474f"}}>52WH </span><span style={{color:isNear?"#00e676":"#78909c",fontWeight:600}}>{stock.pctFrom52WH.toFixed(1)}% away</span></div>
+        <div><span style={{color:"#37474f"}}>SMA50 </span><span style={{color:stock.aboveSMA>0?"#69f0ae":"#ef5350",fontWeight:600}}>{stock.aboveSMA>0?"+":""}{stock.aboveSMA.toFixed(1)}%</span></div>
+        <div style={{color:"#37474f"}}>₹{formatMcap(stock.mcap)}</div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [view, setView] = useState("cards");
+  const [sortBy, setSortBy] = useState("rank");
+
+  const sortOpts = [
+    {value:"rank",label:"Rank"},{value:"rs",label:"RS Rating"},{value:"pctFrom52WH",label:"Near 52W High"},{value:"perf3M",label:"3M Perf"},{value:"score",label:"BD Score"}
+  ];
+
+  const sorted = [...BLUEDOT_DATA].sort((a,b) => {
+    if (sortBy==="rank") return a.rank-b.rank;
+    if (sortBy==="pctFrom52WH") return a.pctFrom52WH-b.pctFrom52WH;
+    return b[sortBy]-a[sortBy];
+  });
+
+  return (
+    <div style={{position:"relative",maxWidth:1100,margin:"0 auto",padding:"24px 20px"}}>
+      <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,pointerEvents:"none",background:"radial-gradient(ellipse at 15% 5%,rgba(33,150,243,0.05) 0%,transparent 55%),radial-gradient(ellipse at 85% 95%,rgba(0,230,118,0.03) 0%,transparent 45%)"}}/>
+
+      <div style={{position:"relative",marginBottom:24}}>
+        <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:6}}>
+          <div style={{width:22,height:22,borderRadius:"50%",background:"radial-gradient(circle at 35% 35%,#64b5f6,#1565c0,#0d47a1)",animation:"bpulse 2.5s ease-in-out infinite"}}/>
+          <h1 style={{margin:0,fontSize:26,fontWeight:800,letterSpacing:"-0.8px",fontFamily:"-apple-system,sans-serif",background:"linear-gradient(135deg,#e3f2fd 30%,#90caf9)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Blue Dot Scanner</h1>
+        </div>
+        <p style={{margin:0,fontSize:11,color:"#37474f",letterSpacing:"0.3px",paddingLeft:36}}>RS Line 52-Week High + Base/Breakout — Click any symbol to open TradingView chart</p>
+      </div>
+
+      <div style={{display:"flex",gap:2,marginBottom:24,borderRadius:10,overflow:"hidden",border:"1px solid #151d3a"}}>
+        {[{l:"Detected",v:"134",c:"#29b6f6"},{l:"MS Matched",v:"69",c:"#00e676"},{l:"Recall",v:"84.1%",c:"#69f0ae"},{l:"Avg RS",v:"96.5",c:"#ffd54f"},{l:"NIFTY 3M",v:"-6.4%",c:"#ef5350"}].map((s,i)=>(
+          <div key={i} style={{flex:1,padding:"14px 12px",textAlign:"center",background:i%2===0?"#0b1030":"#0d1233"}}>
+            <div style={{fontSize:9,color:"#455a64",textTransform:"uppercase",letterSpacing:"1px",marginBottom:4}}>{s.l}</div>
+            <div style={{fontSize:20,fontWeight:800,color:s.c,fontVariantNumeric:"tabular-nums"}}>{s.v}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,gap:12,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {sortOpts.map(o=><button key={o.value} className={"sort-btn"+(sortBy===o.value?" active":"")} onClick={()=>setSortBy(o.value)}>{o.label}</button>)}
+        </div>
+        <div style={{display:"flex",gap:4}}>
+          <button className={"view-btn"+(view==="cards"?" active":"")} onClick={()=>setView("cards")}>◫ Cards</button>
+          <button className={"view-btn"+(view==="compact"?" active":"")} onClick={()=>setView("compact")}>≡ List</button>
+        </div>
+      </div>
+
+      {view==="cards" && (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:14}}>
+          {sorted.map(s=><StockCard key={s.symbol} stock={s}/>)}
+        </div>
+      )}
+
+      {view==="compact" && (
+        <div style={{background:"#0b1030",border:"1px solid #151d3a",borderRadius:10,overflow:"hidden"}}>
+          <div style={{display:"grid",gridTemplateColumns:"28px 14px 120px 1fr 85px 42px 36px 56px 56px 24px",padding:"10px 18px",background:"#0c1030",borderBottom:"1px solid #1a2744",fontSize:9,fontWeight:600,color:"#37474f",textTransform:"uppercase",letterSpacing:"0.8px"}}>
+            <span>#</span><span></span><span>Symbol</span><span>Company</span><span style={{textAlign:"right"}}>Price</span><span style={{textAlign:"center"}}>RS</span><span></span><span style={{textAlign:"right"}}>52WH</span><span style={{textAlign:"right"}}>3M</span><span style={{textAlign:"center"}}>S2</span>
+          </div>
+          {sorted.map((stock,i)=>{
+            const tier=getRSTier(stock.rs);
+            const isNear=stock.pctFrom52WH<=5;
+            return (
+              <div key={stock.symbol} className="list-row" style={{background:i%2===0?"transparent":"rgba(255,255,255,0.006)"}}>
+                <span style={{fontSize:11,color:"#37474f",fontWeight:600}}>{stock.rank}</span>
+                <div style={{width:8,height:8,borderRadius:"50%",background:"radial-gradient(circle at 35% 35%,#64b5f6,#1565c0)",boxShadow:"0 0 6px rgba(33,150,243,0.4)"}}/>
+                <a className="list-sym" onClick={()=>openTV(stock.symbol)} title={"Open "+stock.symbol}>{stock.symbol} <span style={{fontSize:9,opacity:0.35}}>↗</span></a>
+                <span style={{fontSize:11,color:"#455a64",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stock.name}</span>
+                <span style={{textAlign:"right",fontWeight:600,color:"#90a4ae",fontSize:12,fontVariantNumeric:"tabular-nums"}}>₹{formatPrice(stock.price)}</span>
+                <span style={{textAlign:"center",fontSize:14,fontWeight:900,color:tier.color,textShadow:"0 0 8px "+tier.color+"33"}}>{stock.rs}</span>
+                <ScoreRing score={stock.score} size={28}/>
+                <span style={{textAlign:"right",fontSize:11,fontWeight:600,color:isNear?"#00e676":"#78909c"}}>{stock.pctFrom52WH.toFixed(1)}%</span>
+                <span style={{textAlign:"right",fontSize:11,fontWeight:600,color:"#69f0ae"}}>+{stock.perf3M.toFixed(1)}%</span>
+                <span style={{textAlign:"center",fontSize:12}}>{stock.stage2?<span style={{color:"#00e676"}}>✓</span>:<span style={{color:"#263238"}}>—</span>}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div style={{marginTop:20,padding:"12px 16px",borderRadius:8,background:"#0b1030",border:"1px solid #111938",display:"flex",gap:20,flexWrap:"wrap",fontSize:9,color:"#37474f"}}>
+        <span>🔵 RS Line 52W High + Base/Breakout</span>
+        <span>Score = RS + Stage2 + InBase + EMA + Trend (max 9)</span>
+        <span>Data: TradingView Scanner API</span>
+        <span style={{marginLeft:"auto"}}>Click symbol → TradingView Chart</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
