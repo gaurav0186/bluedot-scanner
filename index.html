@@ -9,20 +9,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#080c22;--bg2:#0b1030;--accent:#29b6f6;--accent-soft:rgba(41,182,246,0.12);--accent-border:rgba(41,182,246,0.4)}
+  body{background:var(--bg);font-family:'SF Mono','JetBrains Mono','Fira Code',monospace;color:#c8d6e5}
   body{background:#080c22;font-family:'SF Mono','JetBrains Mono','Fira Code',monospace;color:#c8d6e5}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#080c22}::-webkit-scrollbar-thumb{background:#1a2744;border-radius:3px}
   @keyframes bpulse{0%,100%{box-shadow:0 0 20px rgba(33,150,243,0.5),0 0 40px rgba(33,150,243,0.15)}50%{box-shadow:0 0 28px rgba(33,150,243,0.7),0 0 56px rgba(33,150,243,0.25)}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes fadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
   .sort-btn,.view-btn{padding:6px 14px;border-radius:6px;border:1px solid #1a2744;background:transparent;color:#546e7a;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.3px;transition:all 0.2s}
-  .sort-btn.active,.view-btn.active{border-color:rgba(41,182,246,0.4);background:rgba(41,182,246,0.12);color:#29b6f6}
-  .sort-btn:hover,.view-btn:hover{border-color:rgba(41,182,246,0.3)}
+  .sort-btn.active,.view-btn.active{border-color:var(--accent-border);background:var(--accent-soft);color:var(--accent)}
+  .sort-btn:hover,.view-btn:hover{border-color:color-mix(in srgb, var(--accent) 35%, #1a2744)}
   .card{background:linear-gradient(135deg,#0d1130,#0b0f2a);border:1px solid #151d3a;border-radius:12px;padding:16px 18px;transition:all 0.25s ease;position:relative;overflow:hidden}
   .card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4);background:linear-gradient(135deg,#111640,#0f1338)}
   .sym-link{font-size:16px;font-weight:800;letter-spacing:-0.3px;color:#e3f2fd;cursor:pointer;border-bottom:1.5px solid transparent;transition:border-color 0.2s,color 0.2s;padding-bottom:1px;text-decoration:none}
-  .sym-link:hover{color:#29b6f6;border-bottom-color:rgba(41,182,246,0.5)}
+  .sym-link:hover{color:var(--accent);border-bottom-color:color-mix(in srgb, var(--accent) 50%, transparent)}
   .list-sym{font-weight:800;font-size:13px;color:#e3f2fd;cursor:pointer;transition:color 0.15s;text-decoration:none}
-  .list-sym:hover{color:#29b6f6}
+  .list-sym:hover{color:var(--accent)}
   .list-row{display:grid;grid-template-columns:32px 14px 125px 1fr 88px 42px 36px 56px 56px 24px;padding:11px 18px;align-items:center;border-bottom:1px solid #111938;transition:background 0.15s}
   .list-row:last-child{border-bottom:none}
   .list-row:hover{background:rgba(33,150,243,0.06)}
@@ -36,14 +38,17 @@
   .chart-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0c1030;border-bottom:1px solid #1a2744;flex-wrap:wrap;gap:8px}
   .chart-close{width:32px;height:32px;border-radius:8px;border:1px solid #1a2744;background:transparent;color:#546e7a;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
   .chart-close:hover{border-color:#ef5350;color:#ef5350;background:rgba(239,83,80,0.1)}
-  .tv-link{padding:6px 16px;border-radius:6px;border:1px solid rgba(41,182,246,0.3);background:rgba(41,182,246,0.08);color:#29b6f6;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px}
-  .tv-link:hover{background:rgba(41,182,246,0.15);border-color:rgba(41,182,246,0.5)}
+  .tv-link{padding:6px 16px;border-radius:6px;border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px}
+  .tv-link:hover{background:color-mix(in srgb, var(--accent) 18%, transparent);border-color:color-mix(in srgb, var(--accent) 55%, transparent)}
   .progress-bar{height:3px;background:#111a33;border-radius:2px;overflow:hidden;margin-top:8px}
   .progress-fill{height:100%;background:linear-gradient(90deg,#00e676,#29b6f6);border-radius:2px;transition:width 0.3s ease}
   .page-btn{padding:6px 12px;border-radius:6px;border:1px solid #1a2744;background:transparent;color:#546e7a;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;min-width:36px}
-  .page-btn.active{border-color:rgba(41,182,246,0.4);background:rgba(41,182,246,0.12);color:#29b6f6}
-  .page-btn:hover{border-color:rgba(41,182,246,0.3)}
+  .page-btn.active{border-color:var(--accent-border);background:var(--accent-soft);color:var(--accent)}
+  .page-btn:hover{border-color:color-mix(in srgb, var(--accent) 35%, #1a2744)}
   .page-btn:disabled{opacity:0.3;cursor:not-allowed}
+  .theme-btn{padding:5px 10px;border-radius:999px;border:1px solid #1a2744;background:transparent;color:#78909c;font-size:10px;cursor:pointer;font-family:inherit}
+  .theme-btn.active{border-color:var(--accent-border);background:var(--accent-soft);color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -53,12 +58,19 @@ const { useState, useEffect, useCallback } = React;
 
 // ===== TRADINGVIEW SCANNER API — LIVE FETCH =====
 const FALLBACK_STOCKS = [
-  {symbol:"BEL",name:"Bharat Electronics",price:312.4,change:1.8,rs:97,score:8,pctFrom52WH:4.8,aboveSMA:12.4,perf3M:21.1,perf1M:7.4,perfY:63.2,stage2:true,inBase:true,demand:"A-",master:"A",mcap:228650,rank:1},
-  {symbol:"HAL",name:"Hindustan Aeronautics",price:4821.5,change:0.9,rs:96,score:8,pctFrom52WH:6.3,aboveSMA:10.1,perf3M:17.8,perf1M:5.8,perfY:58.9,stage2:true,inBase:true,demand:"A+",master:"A",mcap:322100,rank:2},
-  {symbol:"COCHINSHIP",name:"Cochin Shipyard",price:1733.0,change:2.1,rs:95,score:7,pctFrom52WH:9.6,aboveSMA:8.7,perf3M:26.4,perf1M:9.2,perfY:121.5,stage2:true,inBase:true,demand:"B",master:"A",mcap:45520,rank:3},
-  {symbol:"BSE",name:"BSE Ltd",price:2824.8,change:-0.4,rs:94,score:7,pctFrom52WH:7.9,aboveSMA:6.2,perf3M:22.6,perf1M:8.5,perfY:109.3,stage2:true,inBase:true,demand:"B",master:"A",mcap:38290,rank:4},
-  {symbol:"TRENT",name:"Trent",price:4129.9,change:1.2,rs:93,score:6,pctFrom52WH:11.2,aboveSMA:5.4,perf3M:14.7,perf1M:4.3,perfY:74.1,stage2:true,inBase:true,demand:"A-",master:"B",mcap:146730,rank:5}
+  {symbol:"BEL",tvSymbol:"NSE:BEL",name:"Bharat Electronics",price:312.4,change:1.8,rs:97,score:8,pctFrom52WH:4.8,aboveSMA:12.4,perf3M:21.1,perf1M:7.4,perfY:63.2,stage2:true,inBase:true,demand:"A-",master:"A",mcap:228650,rank:1},
+  {symbol:"HAL",tvSymbol:"NSE:HAL",name:"Hindustan Aeronautics",price:4821.5,change:0.9,rs:96,score:8,pctFrom52WH:6.3,aboveSMA:10.1,perf3M:17.8,perf1M:5.8,perfY:58.9,stage2:true,inBase:true,demand:"A+",master:"A",mcap:322100,rank:2},
+  {symbol:"COCHINSHIP",tvSymbol:"NSE:COCHINSHIP",name:"Cochin Shipyard",price:1733.0,change:2.1,rs:95,score:7,pctFrom52WH:9.6,aboveSMA:8.7,perf3M:26.4,perf1M:9.2,perfY:121.5,stage2:true,inBase:true,demand:"B",master:"A",mcap:45520,rank:3},
+  {symbol:"BSE",tvSymbol:"NSE:BSE",name:"BSE Ltd",price:2824.8,change:-0.4,rs:94,score:7,pctFrom52WH:7.9,aboveSMA:6.2,perf3M:22.6,perf1M:8.5,perfY:109.3,stage2:true,inBase:true,demand:"B",master:"A",mcap:38290,rank:4},
+  {symbol:"TRENT",tvSymbol:"NSE:TRENT",name:"Trent",price:4129.9,change:1.2,rs:93,score:6,pctFrom52WH:11.2,aboveSMA:5.4,perf3M:14.7,perf1M:4.3,perfY:74.1,stage2:true,inBase:true,demand:"A-",master:"B",mcap:146730,rank:5}
 ];
+
+const THEME_PRESETS = {
+  blue:{name:"Blue",bg:"#080c22",bg2:"#0b1030",accent:"#29b6f6"},
+  emerald:{name:"Emerald",bg:"#061b16",bg2:"#0a2a22",accent:"#00e676"},
+  violet:{name:"Violet",bg:"#120b24",bg2:"#1a1233",accent:"#b388ff"},
+  amber:{name:"Amber",bg:"#201506",bg2:"#2a1d0a",accent:"#ffca28"}
+};
 
 const scannerEndpoints = [
   "https://scanner.tradingview.com/india/scan",
@@ -102,7 +114,7 @@ async function fetchTradingViewData(onProgress) {
     "name","description","close","change","Perf.W","Perf.1M","Perf.3M","Perf.6M","Perf.Y","Perf.YTD",
     "price_52_week_high","price_52_week_low","SMA50","SMA100","SMA200","EMA10","EMA21",
     "volume","average_volume_10d_calc","average_volume_30d_calc","relative_volume_10d_calc",
-    "market_cap_basic","ATR","RSI","exchange"
+    "market_cap_basic","ATR","RSI","exchange","ticker"
   ];
 
   try {
@@ -139,7 +151,7 @@ async function fetchTradingViewData(onProgress) {
         perfW:d[4],perf1M:d[5],perf3M:d[6],perf6M:d[7],perfY:d[8],perfYTD:d[9],
         high52W:d[10],low52W:d[11],sma50:d[12],sma100:d[13],sma200:d[14],
         ema10:d[15],ema21:d[16],volume:d[17],avgVol10:d[18],avgVol30:d[19],
-        rvol:d[20],mcap:d[21],atr:d[22],rsi:d[23],exchange:d[24]
+        rvol:d[20],mcap:d[21],atr:d[22],rsi:d[23],exchange:d[24],tvSymbol:d[25]||`NSE:${d[0]}`
       };
     }).filter(s => s.close > 0 && s.high52W > 0);
 
@@ -183,7 +195,7 @@ async function fetchTradingViewData(onProgress) {
         const masterScore = rsRating>=90 && (s.perf3M||0)>10 ? "A" : rsRating>=70 ? "B" : "C";
         const demandScore = (s.rvol||0)>1.5?"A+":(s.rvol||0)>1.2?"A-":(s.rvol||0)>0.8?"B":"C+";
         blueDots.push({
-          symbol:s.symbol, name:s.name, price:s.close,
+          symbol:s.symbol, tvSymbol:s.tvSymbol || `NSE:${s.symbol}`, name:s.name, price:s.close,
           change: Math.round((s.change||0)*100)/100,
           rs:rsRating, score,
           pctFrom52WH: Math.round(pctFrom52WH*10)/10,
@@ -261,10 +273,12 @@ function MiniBar({value,max,color,label}) {
 }
 
 // ===== CHART MODAL =====
-function ChartModal({symbol,name,onClose}) {
+function ChartModal({symbol,tvSymbol,name,onClose}) {
+  const [frameFailed,setFrameFailed] = useState(false);
   const [interval,setIv] = useState("D");
   const intervals = [{v:"D",l:"Daily"},{v:"W",l:"Weekly"},{v:"M",l:"Monthly"},{v:"60",l:"1H"}];
-  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_chart&symbol=NSE%3A${encodeURIComponent(symbol)}&interval=${interval}&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=0c1030&studies=MASimple%409%7CMASimple%4021%7CMASimple%4050%7CMASimple%40200&theme=dark&style=1&timezone=Asia%2FKolkata&locale=en&hide_volume=0`;
+  const safeTvSymbol = tvSymbol || `NSE:${symbol}`;
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_chart&symbol=${encodeURIComponent(safeTvSymbol)}&interval=${interval}&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=0c1030&studies=MASimple%409%7CMASimple%4021%7CMASimple%4050%7CMASimple%40200&theme=dark&style=1&timezone=Asia%2FKolkata&locale=en&hide_volume=0`;
   return (
     <div className="chart-overlay" onClick={onClose}>
       <div className="chart-modal" onClick={e=>e.stopPropagation()}>
@@ -278,12 +292,12 @@ function ChartModal({symbol,name,onClose}) {
             {intervals.map(iv=>(
               <button key={iv.v} onClick={()=>setIv(iv.v)} style={{padding:"4px 10px",borderRadius:5,border:interval===iv.v?"1px solid rgba(41,182,246,0.4)":"1px solid #1a2744",background:interval===iv.v?"rgba(41,182,246,0.12)":"transparent",color:interval===iv.v?"#29b6f6":"#546e7a",fontSize:10,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{iv.l}</button>
             ))}
-            <a className="tv-link" href={"https://www.tradingview.com/chart/?symbol=NSE%3A"+encodeURIComponent(symbol)} target="_blank" rel="noopener">Full Chart ↗</a>
+            <a className="tv-link" href={"https://www.tradingview.com/chart/?symbol="+encodeURIComponent(safeTvSymbol)} target="_blank" rel="noopener">Full Chart ↗</a>
             <button className="chart-close" onClick={onClose}>✕</button>
           </div>
         </div>
         <div style={{width:"100%",height:460,background:"#0a0e27"}}>
-          <iframe src={chartUrl} style={{width:"100%",height:"100%",border:"none"}} allowTransparency="true"/>
+          {!frameFailed ? <iframe src={chartUrl} style={{width:"100%",height:"100%",border:"none"}} allowTransparency="true" onError={()=>setFrameFailed(true)}/> : <div style={{padding:20,color:"#90a4ae",fontSize:12}}>Embedded chart could not load for <b>{safeTvSymbol}</b>. <a className="tv-link" href={"https://www.tradingview.com/chart/?symbol="+encodeURIComponent(safeTvSymbol)} target="_blank" rel="noopener">Open full chart ↗</a></div>}
         </div>
       </div>
     </div>
@@ -373,6 +387,7 @@ function App() {
   const [progressMsg, setProgressMsg] = useState("");
   const [page, setPage] = useState(1);
   const [autoLoaded, setAutoLoaded] = useState(false);
+  const [themeKey, setThemeKey] = useState("blue");
 
   const CARDS_PER_PAGE = 20;
   const LIST_PER_PAGE = 50;
@@ -435,12 +450,22 @@ function App() {
 
   // Reset page on sort/view change
   useEffect(() => { setPage(1); }, [sortBy, view]);
+  useEffect(() => {
+    const t = THEME_PRESETS[themeKey] || THEME_PRESETS.blue;
+    document.body.style.setProperty("--bg", t.bg);
+    document.body.style.setProperty("--bg2", t.bg2);
+    document.body.style.setProperty("--accent", t.accent);
+    document.body.style.setProperty("--accent-soft", `${t.accent}22`);
+    document.body.style.setProperty("--accent-border", `${t.accent}66`);
+    document.body.style.background = t.bg;
+  }, [themeKey]);
+
 
   return (
     <div style={{position:"relative",maxWidth:1100,margin:"0 auto",padding:"24px 20px"}}>
       <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,pointerEvents:"none",background:"radial-gradient(ellipse at 15% 5%,rgba(33,150,243,0.05) 0%,transparent 55%),radial-gradient(ellipse at 85% 95%,rgba(0,230,118,0.03) 0%,transparent 45%)"}}/>
 
-      {chartStock && <ChartModal symbol={chartStock.symbol} name={chartStock.name} onClose={()=>setChartStock(null)}/>}
+      {chartStock && <ChartModal symbol={chartStock.symbol} tvSymbol={chartStock.tvSymbol} name={chartStock.name} onClose={()=>setChartStock(null)}/>}
 
       {/* Header */}
       <div style={{position:"relative",marginBottom:24}}>
@@ -454,7 +479,12 @@ function App() {
               Top 100 RS Breakout Candidates · Click symbol → Chart popup · Auto-refreshes from TradingView
             </p>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",justifyContent:"flex-end"}}>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              {Object.entries(THEME_PRESETS).map(([k,v]) => (
+                <button key={k} className={"theme-btn"+(themeKey===k?" active":"")} onClick={()=>setThemeKey(k)}>{v.name}</button>
+              ))}
+            </div>
             <button className="refresh-btn" onClick={refreshData} disabled={loading}>
               {loading ? <div className="spinner"/> : <span style={{fontSize:14}}>⟳</span>}
               {loading ? "Scanning..." : "Refresh Live"}
