@@ -2,29 +2,35 @@
 <html>
 <head>
     <title>Bluedot Scanner</title>
+    <link rel="icon" href="data:,">
 </head>
 <body>
     <h1>Welcome to Bluedot Scanner</h1>
-    <script>
-        // Replaced React useEffect (which requires React) with a standard
-        // DOMContentLoaded event listener for plain HTML/JS usage.
-        document.addEventListener('DOMContentLoaded', function() {
-            // Your code goes here...
-        });
+    <ul id="fallback-list"></ul>
 
+    <script>
         const fallbackData = [
             {
                 id: 1,
                 name: 'Fallback Item 1',
-                value: ''
+                value: 'N/A'
             },
             {
                 id: 2,
                 name: 'Fallback Item 2',
-                value: ''
+                value: 'N/A'
             }
         ];
-        // Your other code...
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const list = document.getElementById('fallback-list');
+
+            fallbackData.forEach(function(item) {
+                const li = document.createElement('li');
+                li.textContent = `${item.name}: ${item.value}`;
+                list.appendChild(li);
+            });
+        });
     </script>
 </body>
 </html>
