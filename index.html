@@ -79,12 +79,14 @@ const scannerEndpoints = [
 
 async function postScanner(body) {
   let lastErr = null;
+  const payload = JSON.stringify(body);
   for (const endpoint of scannerEndpoints) {
     try {
       const res = await fetch(endpoint, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify(body)
+        // Keep this as a "simple" CORS request (no custom content-type header)
+        // so browsers don't send a preflight that TradingView blocks.
+        body: payload
       });
       if (!res.ok) throw new Error(`HTTP ${res.status} at ${endpoint}`);
       const json = await res.json();
